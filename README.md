@@ -1,4 +1,4 @@
-# Tounum - Automated Image Captioning Pipeline
+# TouNum - Automated Image Captioning Pipeline
 
 A comprehensive three-stage deep learning pipeline that classifies, denoises, and generates captions for images automatically.
 
