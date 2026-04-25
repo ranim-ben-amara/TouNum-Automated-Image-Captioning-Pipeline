@@ -1,115 +1,80 @@
 # TouNum - Automated Image Captioning Pipeline
 
-A comprehensive three-stage deep learning pipeline that classifies, denoises, and generates captions for images automatically.
+TouNum is a notebook-based image understanding project with three deliverables:
 
-## Overview
+1. Binary image classification
+2. Image denoising
+3. Image caption generation
 
-This project implements a production-ready pipeline combining computer vision and natural language processing to:
+The repository also includes a combined notebook that chains the three stages into a single inference pipeline.
 
-1. **Classify** images as photos or non-photos
-2. **Denoise** images for improved quality
-3. **Generate** natural language captions describing the image content
+## Repository Layout
 
-## Architecture
+- `Deliverable1_Binary_Image_Classification.ipynb` - trains the photo vs. non-photo classifier
+- `Deliverable2_Image_Denoising.ipynb` - trains the denoising model
+- `Deliverable3_Image_Captioning.ipynb` - builds and trains the captioning model
+- `finalPipeline_2.ipynb` - runs the end-to-end pipeline using the saved artifacts
 
-### Stage 1: Image Classifier (Deliverable 1)
+## What The Pipeline Does
 
-- **Model**: Custom CNN classifier
-- **Purpose**: Determines whether input is a photograph or not
-- **Input**: 128×128 RGB images
-- **Output**: Binary classification with probability score
+The integrated workflow takes an input image and:
 
-### Stage 2: Image Denoiser (Deliverable 2)
+1. Classifies it as a photo or non-photo image
+2. Denoises it to improve downstream quality
+3. Generates a natural-language caption for the image content
 
-- **Model**: Custom denoising neural network
-- **Purpose**: Removes noise and artifacts from images for better downstream processing
-- **Input**: 256×256 RGB images
-- **Output**: Denoised 256×256 images
+The final notebook also visualizes the original and denoised image outputs.
 
-### Stage 3: Caption Generator
+## Model Artifacts
 
-- **Vision Encoder**: InceptionV3 (pre-trained on ImageNet)
-  - Extracts visual features from images (299×299)
-  - Produces fixed-size feature embeddings
-- **Architecture**: Transformer-based encoder-decoder
-  - **Encoder**: Processes CNN features with Multi-Head Attention
-  - **Decoder**: Generates captions sequentially using:
-    - Self-attention over decoded tokens
-    - Cross-attention over image features
-    - Feed-forward networks for refinement
-- **Tokenization**:
-  - Vocabulary size: 15,000 words
-  - Max caption length: 40 tokens
-  - Embedding dimension: 512
-  - Transformer units: 512
+The notebooks expect trained artifacts to be available outside the repository. The combined pipeline loads these files:
 
-## Files
+- `deliverable1.keras` - classifier model
+- `deliverable2_denoiser_model.keras` - denoiser model
+- `model.weights.h5` - captioning model weights
+- `text_vocab.json` - tokenizer vocabulary
 
-- **`finalPipeline_2.ipynb`** - The complete, integrated pipeline notebook with all three stages and visualization
-
-### Required Model Artifacts (in `../All_models/` directory)
-
-- `deliverable1.keras` - Image classifier model
-- `deliverable2_denoiser_model.keras` - Denoiser model
-- `model.weights.h5` - Caption generator weights
-- `text_vocab.json` - Tokenizer vocabulary
-
-## Features
-
-- **Multi-stage processing**: Classification → Denoising → Captioning
-- **Transformer architecture**: Modern attention-based caption generation
-- **Visual output**: Side-by-side comparison of original and denoised images
-- **Probability scoring**: Classification confidence metrics
-- **Batch-capable**: Can process individual images or batches
-- **Pre-trained encoders**: InceptionV3 backbone for robust feature extraction
+If your artifact directory is different, update the path configured in `finalPipeline_2.ipynb` before running the notebook.
 
 ## Requirements
 
+The notebooks were built for a Python notebook environment with:
+
+- Python 3.7+
 - TensorFlow 2.x
 - NumPy
 - Matplotlib
-- JSON support
-- Python 3.7+
+- pandas
+- scikit-learn
+- scikit-image
+- Pillow
+- imageio
+- requests
+- tqdm
 
-## Usage
+## Running The Project
+
+1. Open the deliverable notebook you want to train or inspect.
+2. Run the cells in order to build the corresponding model artifact.
+3. Place the saved artifacts where `finalPipeline_2.ipynb` expects them.
+4. Open `finalPipeline_2.ipynb` and run the pipeline on an input image.
+
+Example usage inside the final notebook:
 
 ```python
-# Basic example
 result = run_full_pipeline_visual("path/to/image.jpg")
 print(result)
-# Output: {
-#   "is_photo": True,
-#   "photo_prob": 0.95,
-#   "caption": "A sunset over mountains"
-# }
 ```
 
-### Processing Steps
+The returned result includes:
 
-1. **Load Image** → Read and parse image file
-2. **Classify** → Predict if image is a photograph
-3. **Denoise** → Remove noise and artifacts
-4. **Preprocess** → Resize and normalize for caption model (299×299)
-5. **Extract Features** → InceptionV3 CNN feature extraction
-6. **Generate Caption** → Transformer sequentially predicts tokens until `[end]` token
-7. **Visualize** → Display original, denoised, and caption results
-
-## Pipeline Output
-
-Each processing run returns:
-
-- **is_photo**: Boolean classification result
-- **photo_prob**: Float (0.0-1.0) classification confidence
-- **caption**: Generated caption string
-
-Visual output shows:
-
-- Left panel: Original image with classification label
-- Right panel: Denoised image with generated caption
+- `is_photo` - whether the image was classified as a photo
+- `photo_prob` - classifier confidence score
+- `caption` - generated caption text
 
 ## Notes
 
-- Image dimensions are automatically resized for each stage
-- Captions terminate at max length (40 tokens) or `[end]` token, whichever comes first
-- Model files must exist in `../All_models/` relative to notebook directory
-- Processing time depends on image size and available GPU resources
+- Image sizes are resized automatically per stage.
+- Caption generation stops at the end token or the configured maximum length.
+- The repository does not include the trained model artifacts or source datasets.
+- Notebook execution time depends on the available CPU/GPU environment.
